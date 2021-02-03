@@ -14,6 +14,10 @@ class DataLoaderController(SingletoneInstance):
         self.dataloader_config = App.instance().config.DATA_LOADER
         self.dataloaders = {}
 
+    @classmethod
+    def register(cls):
+        return cls.instance()
+
     def make_dataset(self, loader_name: str, dataloader_config=None):
         """
         This function injects the DataLoader class into self.dataloaders.

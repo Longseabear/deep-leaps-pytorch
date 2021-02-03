@@ -11,18 +11,14 @@ print('Property: ', torch.cuda.get_device_properties(0))
 print(os.environ['DISPLAY'])
 
 def main(configs):
-    config = None
     if isinstance(configs, list):
-        config = App.make_from_config_list(configs).config
+        App.register_from_config_list(configs)
     else:
-        config = App.instance(configs).config
+        App.register(configs)
         App.instance().update()
-    dataloader_controller = DataLoaderController.instance()
-
-    trainer: ModelController = ModelController.controller_factory()
-
+    DataLoaderController.register()
+    trainer: ModelController = ModelController.register()
     try:
-        # trainer.run()
         trainer.COMMAND_CONTROLLER.run()
     except Exception as e:
         print(e)
@@ -33,5 +29,3 @@ if __name__ == '__main__':
     config_list_paths = ['resource/configs/dataloader/dataLoaderEventQueue.yaml',
                          'resource/configs/trainer/ExampleController.yaml']
     main(config_list_paths)
-
-

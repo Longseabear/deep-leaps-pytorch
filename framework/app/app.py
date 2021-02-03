@@ -17,8 +17,14 @@ class SingletoneInstance:
         return cls.__instance
 
     @classmethod
-    def instance(cls, *args, **kargs):
+    def register(cls, *args, **kargs):
         cls.__instance = cls(*args, **kargs)
+        cls.instance = cls.__getInstance # Override
+        return cls.__instance
+
+    @classmethod
+    def instance(cls):
+        cls.__instance = cls()
         cls.instance = cls.__getInstance # Override
         return cls.__instance
 
@@ -35,7 +41,7 @@ $
 '''
 class App(SingletoneInstance):
     @classmethod
-    def make_from_config_list(cls, config_paths):
+    def register_from_config_list(cls, config_paths):
         """
         Initialize the App by using the configuration list. This function must be executed only once.
         :param config_paths:
