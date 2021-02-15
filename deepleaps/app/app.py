@@ -100,12 +100,19 @@ class App(SingletoneInstance):
         logging.config.dictConfig(Config.extraction_dictionary(self.system.LOGGER))
         self.logger = logging.getLogger('DEFAULT')
         self.logger.addHandler(TqdmLoggingHandler())
-
         self.setSeed(self.system.SEED)
         # --------------------------------Variable Setting--------------------------------------
         self.name = None
         self._variables = self.config.App.Variables
         self.register_buffer = defaultdict(lambda: None)
+
+    def add_logger_file_handler(self, filename):
+        if self.register_buffer['logger_file_handler'] is not None:
+            self.logger.removeHandler(self.register_buffer['logger_file_handler'])
+        new_handler = logging.FileHandler(filename=filename)
+        new_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s [%(filename)s:%(lineno)d]"))
+        self.register_buffer['logger_file_handler'] = new_handler
+        self.logger.addHandler(new_handler)
 
     def container_end(self):
         self.name = None
@@ -142,6 +149,8 @@ class App(SingletoneInstance):
         else:
             raise NotImplementedError
         print('[INFO] base_path: {}'.format(self._variables.base))
+        self.make_save_dir(self.nested_dir_path_parser(self._variables.base))
+        self.add_logger_file_handler(self.nested_dir_path_parser(os.path.join(self._variables.base, 'log.info')))
 
     def setSeed(self, seed):
         """
@@ -320,6 +329,10 @@ class WorksapceUtility(object):
 
     def get_path_value(self, key, type):
         return self.paths[key][type]
+
+    def set_default_value(self, key, val):
+        if key not in self.paths.keys():
+            self.add_path(key, val)
 
     def get_assigned_full_path(self, *key):
         return os.path.join(self.assigned_base_path, self.get_assigned_relative_path(*key))

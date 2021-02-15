@@ -1,4 +1,5 @@
 import torch.utils.data as datalodaer
+import copy
 from deepleaps.dataloader.Transform import TRANSFORM
 from abc import *
 
@@ -31,9 +32,12 @@ class BaseDataset(datalodaer.Dataset, metaclass=ABCMeta):
             transforms_info = transforms_info.split(':')
             transform_name = transforms_info[0]
             required_inputs = set(self._required)
+            output_name = '{%s}'
             if len(transforms_info) > 1:
                 required_inputs = required_inputs.intersection(set(transforms_info[1].split('-')))
-            self._transformers.append(TRANSFORM[transform_name](list(required_inputs), self._meta))
+                if len(transforms_info) > 2:
+                    output_name = transforms_info[2]
+            self._transformers.append(TRANSFORM[transform_name](list(required_inputs), output_name))
 
     @classmethod
     @abstractmethod

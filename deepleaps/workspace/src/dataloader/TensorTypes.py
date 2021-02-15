@@ -1,15 +1,5 @@
-import torch
+from deepleaps.dataloader.TensorTypes import TensorType
 import scipy.misc as misc
-
-class TensorType:
-    def __str__(self):
-        return self.__class__.__name__
-
-    def getSample(self, sample):
-        raise NotImplementedError
-
-class ANY(TensorType):
-    pass
 
 class IMAGE(TensorType):
     def image_loader(self, path):

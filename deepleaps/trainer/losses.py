@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 from abc import abstractmethod
 from deepleaps.utils.config import Config
-from deepleaps.app.app import App
+from deepleaps.app.app import App, WorksapceUtility
 from deepleaps.trainer.TrainerModule import TrainerModule
+from deepleaps.app.Format import MainStateBasedFormatter
 import os
 import sys
 
@@ -49,13 +50,32 @@ class LossContainer(TrainerModule):
         self.total_loss(total_loss)
         return total_loss
 
-    def save(self, args):
-        state = info['state']
-        contents = App.instance().current_time_format() + " {} epoch, {} step\n".format(state.epoch, state.step)
+    def get_losses_str(self, controller=None, required=None):
+        contents = ''
+        if controller is not None:
+            state = controller.get_current_main_module()
+            contents = App.instance().current_time_format() + " {} epoch, {} step\n".format(state.step, state.total_step)
         contents += "|{}: {}\t".format('Total', str(self.total_loss))
-        for key in self.loss_dict.keys():
-            contents += "|{}: {}\t".format(key, str(self.loss_dict[key]))
-        App.instance().smart_write(contents + '\n', info['path'], 'a+')
+        if required is None:
+            for key in self.loss_dict.keys():
+                contents += "|{}: {}\t".format(key, str(self.loss_dict[key]))
+        else:
+            for key in required:
+                contents += "|{}: {}\t".format(key, str(self.loss_dict[key]))
+        return contents
+
+    def __str__(self):
+        return self.get_losses_str()
+
+    def save(self, args):
+        workspace: WorksapceUtility = args['workspace']
+        ckp_dir = workspace.get_assigned_full_path('ckp_dir')
+        App.instance().make_save_dir(ckp_dir)
+        workspace.add_path('file_name', args.get('path', 'loss.txt'))
+
+        contents = self.get_losses_str(args['controller'])
+        App.instance().smart_write(contents + '\n', workspace.get_assigned_full_path('ckp_dir','file_name'), 'a+')
+        App.instance().logger.info(contents)
 
     def load(self, args):
         pass

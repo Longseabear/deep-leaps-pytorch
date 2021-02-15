@@ -32,7 +32,7 @@ class DependentParent(object):
 
         self.my_name = my_name
         self.dependent_module, self.attribute = cut
-        self.requried_step = default_step
+        self.required_step = default_step
         self.previous_step = -1
 
     def get_dependent_module(self):
@@ -44,7 +44,7 @@ class DependentParent(object):
     def valid_check(self):
         my = RunnableModule.get_runnable_controller().get_runnable_module(self.my_name)
         now_step = self.get_condition_value()
-        if now_step % self.requried_step == 0 and self.previous_step != now_step and my.live:
+        if now_step % self.required_step == 0 and self.previous_step != now_step and my.live:
             self.previous_step = now_step
             return my.repeat == -1 or my.repeat > my.step
         return False
@@ -251,8 +251,8 @@ class RunnableGraph(RunnableModule):
             self.remove_edge(p.name)
             p.destroy()
         else:
-            nexts_name = module_controller.next[p.name]
-            for name in nexts_name:
+            next_names = module_controller.next[p.name]
+            for name in next_names:
                 next_obj = module_controller.get_runnable_module(name)
                 next_obj.current_degree += 1
                 if next_obj.current_degree == next_obj.indegree:
@@ -386,7 +386,7 @@ class RunCommand(RunnableNode):
 class BatchedImageShowCommand(RunnableNode):
     def __init__(self, name, config):
         super().__init__(name, config)
-        self.numpy_trasnsform = TRANSFORM['ToNumpy']([name + "_output" for name in self.config.required], {'ALL': IMAGE()})
+        self.numpy_trasnsform = TRANSFORM['ToNumpy']([name + "_output" for name in self.config.required])
 
     def run(self):
         temp_sample = {}
@@ -401,7 +401,7 @@ class BatchedImageShowCommand(RunnableNode):
 class BatchedImageSaveCommand(RunnableNode):
     def __init__(self, name, config):
         super().__init__(name, config)
-        self.numpy_trasnsform = TRANSFORM['ToNumpy']([name for name in self.config.required], {'ALL': IMAGE()})
+        self.numpy_trasnsform = TRANSFORM['ToNumpy']([name for name in self.config.required])
         self.type = IMAGE()
 
     def leave(self):
@@ -473,7 +473,7 @@ class ModuleLoadClass(RunnableNode):
                     ckp_path = get_meta_value(workspace_meta, 'checkpoint', name, head)
 
                 if ckp_path == None:
-                    App.instance().logger.error(self.log_format('Load fail: there is no identifier file. {}'.format(head)))
+                    App.instance().logger.error(self.log_format('Load fail: there is no identifier file. {}'.format(ckp_path)))
                     continue
 
                 workspace.add_path('ckp_path', ckp_path)

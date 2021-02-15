@@ -6,6 +6,7 @@ from struct import unpack
 from deepleaps.app.Exceptions import *
 from importlib import import_module, reload
 from deepleaps.trainer.TrainerContainer import TrainerContainer
+from deepleaps.utils.runtime import load_module
 
 class RunnableModuleFactory(object):
     def __init__(self, runnable_controller, host, port):
@@ -30,7 +31,8 @@ class RunnableModuleFactory(object):
             'ADD': self.add_from_script,
             'DEFAULT': self.add_from_script,
             'LOAD': self.update_from_yaml,
-            'ADD_MODULE': self.command_modules.append,
+            'IMPORT_MODULE': load_module,
+            'ADD_COMMAND_MODULE': self.command_modules.append,
             'RELOAD_MODULE': self.reload_module,
             'EXPORT': self.set_global_variable
         }
@@ -244,7 +246,6 @@ class RunnableModuleController(SingletoneInstance):
 
         self.next = defaultdict(list)
         self.previous = defaultdict(list)
-        self.make_directory()
 
         self.factory = RunnableModuleFactory(self, config.ipc_host, int(config.ipc_port))
 
@@ -293,10 +294,6 @@ class RunnableModuleController(SingletoneInstance):
 
     def remove_runnable_module(self, key):
         del self.all_runnable_module[key]
-
-    def make_directory(self):
-        workspace = self.config.get('save_path', '$base/ipc', possible_none=False)
-        App.instance().make_save_dir(workspace)
 
     def get_last_variables_value(self, name):
         item = self.variables[name]

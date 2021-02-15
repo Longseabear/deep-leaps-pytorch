@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="deep-leaps",
-    version="0.0.5",
+    version="0.0.11",
     author="Leaps",
     author_email="leap1568@gmail.com",
     description="Data driven development based deep learning deepleaps(pytorch)",
