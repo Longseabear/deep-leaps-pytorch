@@ -242,7 +242,7 @@ class RunnableGraph(RunnableModule):
             e.graph_exception_processing(self, p)
         except Exception as e:
             if App.instance().config.App.DEBUG:
-                print(traceback.format_exc())
+                print('ERROR', traceback.format_exc(), e)
             else:
                 App.instance().logger.warning('[ERROR/{}/{}] {}'.format(p.name, p.__class__.__name__, e))
         p.update()
@@ -282,7 +282,7 @@ class MainGraph(RunnableGraph):
         super(MainGraph, self).start()
         RunnableModule.get_runnable_controller().variables['main'].append(self.name)
 
-        config = copy.deepcopy(self.config.args[self.loader_name]) if self.loader_name in self.config.args.keys() else None
+        config = self.config.args.get('loader_args', None)
         DataLoaderController.instance().make_dataset(self.loader_name, config)
     
     def init(self):

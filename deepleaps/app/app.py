@@ -144,6 +144,8 @@ class App(SingletoneInstance):
                 print('[INFO] Now App mode is {}, Since the directory already exists, a new folder {} is created.'.format(
                     mode, self._variables.base))
         elif mode == 'resume':
+            base_path = os.path.join(base, model_name, experiment_name)
+            self._variables.base = base_path
             if not os.path.exists(self._variables.base):
                 raise FileExistsError
         else:
@@ -339,12 +341,9 @@ class WorksapceUtility(object):
 
     def join(self, *args):
         paths = []
-        print(args)
         for arg in args:
             if '$' in arg:
                 paths.append(App.instance().nested_dir_path_parser(arg))
             else:
                 paths.append(arg)
-        print(paths)
-        input()
         return os.path.join(*paths)

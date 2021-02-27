@@ -10,7 +10,7 @@ App:
 COMMAND_CONTROLLER:
   ipc_host: '127.0.0.1'
   ipc_port: 1568
-  command_path: 'resource/configs/ipc/default_runnable_command.yaml'
+  command_path: 'resource/configs/command/default_runnable_command.yaml'
 
 DATA_LOADER:
   transform_modules: []

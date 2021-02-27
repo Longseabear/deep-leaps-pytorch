@@ -1,0 +1,31 @@
+COMMAND_CONTROLLER:
+  ipc_host: '127.0.0.1'
+  ipc_port: 1568
+  command_path: 'resource/configs/command/default_runnable_command.yaml'
+
+DATA_LOADER:
+  transform_modules: ['src.dataloader.transforms']
+  required_loader:
+    default:
+      dataset: 'resource/configs/dataset/Example.yaml'
+    training:
+      dataset: 'resource/configs/dataset/Example.yaml'
+      config:
+        reload: false
+        mode: train
+      loader_args:
+        batch_size: 1
+    validation:
+      config:
+        reload: false
+      dataset: 'resource/configs/dataset/Example.yaml'
+    testing:
+      config:
+        reload: false
+      dataset: 'resource/configs/dataset/Example.yaml'
+      transforms: ['ToTensor:IMAGE-GT:{%s}',]
+#      required_input: ['XX']
+  args:
+    output_required: []
+    version: 1
+

@@ -120,18 +120,21 @@ class TrainerModule(torch.nn.Module):
             target = get_class_object_from_load_info(config._LOAD_INFO).factory(
                 config)
         else:
-            target = container.__getattribute__(name).update_module(config)
+            target = App.instance().register_buffer['previous_container'].__getattribute__(name).update_module(config)
         container.__setattr__(name, target)
 
     @classmethod
     def make_trainer_module(cls, config):
         config = cls.config_load(config)
+
+        App.instance().register_buffer['previous_container'] = App.instance().register_buffer['container']
         App.instance().register_buffer['container'] = get_class_object_from_load_info(config._LOAD_INFO).factory(config)
         container: TrainerContainer = App.instance().register_buffer['container']
         for key in config.keys():
             if key.startswith('_'): continue
             sub_module_config = cls.config_load(config[key])
             cls.insert_trainer_module(key, sub_module_config)
+        App.instance().register_buffer['previous_container'] = None
         return container
 
 from collections import defaultdict

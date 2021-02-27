@@ -29,7 +29,7 @@ class RunnableModuleFactory(object):
 
         self.fun_mapper = {
             'ADD': self.add_from_script,
-            'DEFAULT': self.add_from_script,
+            'DEFAULT': self.default_setting, # default_setting
             'LOAD': self.update_from_yaml,
             'IMPORT_MODULE': load_module,
             'ADD_COMMAND_MODULE': self.command_modules.append,
@@ -43,7 +43,10 @@ class RunnableModuleFactory(object):
                 opt, commands = self.job_queue.get()
                 opt = opt.upper()
                 App.instance().logger.info('IPC receive: {} {}'.format(opt, commands))
-                self.fun_mapper[opt](commands)
+                try:
+                    self.fun_mapper[opt](commands)
+                except Exception as e:
+                    App.instance().logger.info('IPC Processing Fail... reason: {}'.format(e))
 
                 if self.job_queue.empty(): break
 
